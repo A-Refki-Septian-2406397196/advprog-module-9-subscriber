@@ -34,3 +34,19 @@ Berikut adalah screenshot RabbitMQ ketika subscriber dibuat lambat dengan menamb
 Pada percobaan ini, subscriber dibuat memproses setiap message dengan delay 1 detik. Sementara itu, publisher dijalankan beberapa kali secara cepat. Karena publisher dapat mengirim message lebih cepat daripada subscriber memprosesnya, message akan menumpuk sementara di queue RabbitMQ.
 
 Jumlah queue dapat naik karena RabbitMQ menyimpan message yang belum sempat diproses oleh subscriber. Setelah subscriber terus berjalan, queue akan turun sedikit demi sedikit karena message diproses satu per satu.
+
+## Reflection and Running at least three subscribers
+
+Berikut adalah hasil ketika tiga subscriber dijalankan secara bersamaan.
+
+![Subscriber 1](images/subscriber-1.png)
+
+![Subscriber 2](images/subscriber-2.png)
+
+![Subscriber 3](images/subscriber-3.png)
+
+Pada percobaan ini, saya menjalankan tiga subscriber yang terhubung ke queue yang sama, yaitu `user_created`. Setelah publisher dijalankan beberapa kali, message tidak hanya diproses oleh satu subscriber, tetapi dibagi ke beberapa subscriber.
+
+Hal ini terjadi karena RabbitMQ mendistribusikan message ke consumer yang sedang aktif pada queue tersebut. Dengan tiga subscriber, proses konsumsi message menjadi lebih cepat dibanding hanya satu subscriber, karena beban pemrosesan dibagi ke beberapa proses.
+
+Menurut saya, kode publisher dan subscriber masih bisa diperbaiki. Pertama, bagian `loop {}` pada subscriber kurang ideal karena membuat program berjalan terus tanpa mekanisme shutdown yang rapi. Kedua, error handling masih terlalu sederhana karena banyak bagian menggunakan `unwrap()`. Jika koneksi ke RabbitMQ gagal, program langsung berhenti. Ketiga, konfigurasi seperti URL RabbitMQ sebaiknya dipindahkan ke environment variable agar lebih fleksibel dan tidak hardcoded di dalam kode.
