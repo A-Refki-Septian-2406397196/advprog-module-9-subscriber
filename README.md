@@ -24,3 +24,13 @@ Berikut adalah hasil ketika publisher mengirim 5 event ke RabbitMQ, lalu subscri
 Pada percobaan ini, publisher mengirim 5 event `UserCreatedEventMessage`. Setiap event masuk ke RabbitMQ terlebih dahulu sebagai message broker, lalu diterima oleh subscriber melalui queue `user_created`.
 
 Hasil pada terminal menunjukkan bahwa subscriber berhasil menerima 5 message, yaitu user dengan id 1 sampai 5. Ini menunjukkan bahwa komunikasi event-driven berjalan dengan benar: publisher tidak mengirim data langsung ke subscriber, tetapi melalui RabbitMQ.
+
+## Simulating slow subscriber
+
+Berikut adalah screenshot RabbitMQ ketika subscriber dibuat lambat dengan menambahkan `thread::sleep(ten_millis);`.
+
+![Slow Subscriber Queue](images/slow-subscriber-queue.png)
+
+Pada percobaan ini, subscriber dibuat memproses setiap message dengan delay 1 detik. Sementara itu, publisher dijalankan beberapa kali secara cepat. Karena publisher dapat mengirim message lebih cepat daripada subscriber memprosesnya, message akan menumpuk sementara di queue RabbitMQ.
+
+Jumlah queue dapat naik karena RabbitMQ menyimpan message yang belum sempat diproses oleh subscriber. Setelah subscriber terus berjalan, queue akan turun sedikit demi sedikit karena message diproses satu per satu.
